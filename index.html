@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>小红书「笔记搭子」原型 v1.0</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --bg: #000000;
+  --bg2: #111111;
+  --bg3: #1a1a1a;
+  --bg4: #222222;
+  --border: #2a2a2a;
+  --text: #ffffff;
+  --text2: #cccccc;
+  --text3: #888888;
+  --text4: #555555;
+  --red: #FF2442;
+  --red-dim: rgba(255,36,66,0.15);
+  --gold: #f0c040;
+  --green: #22c55e;
+}
+
+body {
+  font-family: 'Noto Sans SC', -apple-system, sans-serif;
+  background: #1a1a2e;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+}
+
+/* ── 左侧标题栏 ── */
+.sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  background: #0f0f1a;
+  border-right: 1px solid #1e1e35;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 40px 24px 32px;
+  position: sticky;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  z-index: 200;
+}
+.sidebar-logo {
+  font-size: 28px;
+  margin-bottom: 16px;
+}
+.sidebar-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+.sidebar-sub {
+  font-size: 11px;
+  color: #444466;
+  line-height: 1.7;
+  margin-bottom: 32px;
+}
+.sidebar-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.sidebar-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.step-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #FF2442;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.step-text {
+  font-size: 11px;
+  color: #666688;
+  line-height: 1.5;
+}
+.sidebar-version {
+  margin-top: auto;
+  font-size: 10px;
+  color: #333355;
+  font-family: monospace;
+}
+
+/* ── 右侧手机横排容器 ── */
+.phones-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 32px;
+  padding: 40px 40px 40px 40px;
+  flex: 1;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+/* ── 手机外壳 ── */
+.phone-shell {
+  width: 375px;
+  flex-shrink: 0;
+}
+.phone-label {
+  text-align: center;
+  color: #888;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  font-family: monospace;
+}
+.phone-frame {
+  width: 375px;
+  height: 812px;
+  background: var(--bg);
+  border-radius: 44px;
+  overflow: hidden;
+  position: relative;
+  box-shadow:
+    0 0 0 1px #333,
+    0 0 0 8px #1a1a1a,
+    0 0 0 9px #333,
+    0 40px 80px rgba(0,0,0,0.6);
+}
+
+/* ── 状态栏 ── */
+.status-bar {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  background: var(--bg);
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+}
+.status-time { font-size: 15px; font-weight: 600; color: var(--text); }
+.status-icons { display: flex; gap: 6px; align-items: center; }
+.status-icons svg { width: 16px; height: 16px; fill: var(--text); }
+
+/* ── 导航栏 ── */
+.nav-bar {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background: var(--bg);
+  position: absolute;
+  top: 44px; left: 0; right: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--border);
+}
+.nav-back { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.nav-back svg { width: 20px; height: 20px; stroke: var(--text); fill: none; stroke-width: 2; stroke-linecap: round; }
+.nav-author { display: flex; align-items: center; gap: 8px; flex: 1; margin-left: 8px; }
+.nav-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; font-size: 13px; color: white; font-weight: 500; flex-shrink: 0; }
+.nav-name { font-size: 14px; color: var(--text); font-weight: 500; }
+.nav-follow {
+  padding: 5px 14px;
+  border-radius: 100px;
+  border: 1.5px solid var(--red);
+  color: var(--red);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.nav-follow:active { background: var(--red); color: white; }
+.nav-share { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; margin-left: 8px; }
+.nav-share svg { width: 20px; height: 20px; stroke: var(--text); fill: none; stroke-width: 1.8; stroke-linecap: round; }
+
+/* ── 面包屑（B笔记专用） ── */
+.breadcrumb {
+  height: 32px;
+  background: rgba(255,36,66,0.1);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 6px;
+  cursor: pointer;
+  position: absolute;
+  top: 88px; left: 0; right: 0;
+  z-index: 99;
+  border-bottom: 1px solid rgba(255,36,66,0.2);
+}
+.breadcrumb-icon { font-size: 12px; }
+.breadcrumb-text { font-size: 12px; color: var(--red); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── 可滚动内容区 ── */
+.scroll-area {
+  position: absolute;
+  top: 88px; left: 0; right: 0; bottom: 60px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.scroll-area::-webkit-scrollbar { display: none; }
+.scroll-area.with-breadcrumb { top: 120px; }
+
+/* ── 笔记内容区 ── */
+.note-images {
+  width: 375px;
+  height: 375px;
+  background: #0d1117;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.note-img-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
+.note-img-badge {
+  position: absolute;
+  top: 12px; right: 12px;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 100px;
+  backdrop-filter: blur(4px);
+}
+.map-visual {
+  width: 280px;
+  height: 240px;
+  border-radius: 12px;
+  background: #1a3a5c;
+  position: relative;
+  overflow: hidden;
+}
+.map-dots {
+  position: absolute;
+  inset: 0;
+}
+.map-line {
+  position: absolute;
+  top: 30px; left: 40px; right: 40px; bottom: 30px;
+  border: 2px dashed #a855f7;
+  border-radius: 60%;
+  opacity: 0.6;
+}
+.dot { position: absolute; width: 24px; height: 24px; border-radius: 50%; background: #a855f7; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 700; }
+
+.note-body { padding: 16px 16px 0; }
+.note-title { font-size: 16px; font-weight: 700; color: var(--text); line-height: 1.5; margin-bottom: 8px; }
+.note-desc { font-size: 14px; color: var(--text2); line-height: 1.7; }
+.note-tags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { font-size: 12px; color: #a78bfa; }
+.note-meta { padding: 10px 16px; display: flex; align-items: center; gap: 4px; }
+.note-date { font-size: 12px; color: var(--text3); }
+.note-location-badge { margin-left: auto; font-size: 12px; color: var(--text3); display: flex; align-items: center; gap: 3px; }
+.dislike-btn { font-size: 12px; color: var(--text3); display: flex; align-items: center; gap: 3px; }
+
+/* ── 评论区 Header ── */
+.comment-header {
+  padding: 0 16px;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.tab-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 44px;
+  border-bottom: 1px solid var(--border);
+}
+.tab {
+  padding: 0 4px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  margin-right: 20px;
+  font-size: 15px;
+  color: var(--text3);
+  font-weight: 400;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+.tab.active {
+  color: var(--text);
+  font-weight: 600;
+}
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--red);
+  border-radius: 1px;
+}
+.tab-sort { margin-left: auto; font-size: 12px; color: var(--text3); display: flex; align-items: center; gap: 3px; }
+
+/* ── 评论列表 ── */
+.comment-section { padding: 12px 16px; }
+.comment-item { display: flex; gap: 10px; margin-bottom: 20px; }
+.comment-avatar { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; color: white; font-weight: 500; }
+.comment-body { flex: 1; min-width: 0; }
+.comment-user { font-size: 13px; color: var(--text3); margin-bottom: 4px; }
+.comment-text { font-size: 14px; color: var(--text2); line-height: 1.6; }
+.comment-meta { display: flex; align-items: center; margin-top: 6px; gap: 12px; }
+.comment-date { font-size: 12px; color: var(--text4); }
+.comment-like { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text3); margin-left: auto; }
+.comment-reply-btn { font-size: 12px; color: var(--text4); cursor: pointer; }
+.comment-reply { margin-top: 8px; background: var(--bg3); border-radius: 8px; padding: 8px 10px; }
+.comment-reply-text { font-size: 13px; color: var(--text2); line-height: 1.5; }
+.comment-reply-user { font-size: 12px; color: #a78bfa; }
+
+/* ── 笔记搭子区 ── */
+.agg-section { padding: 12px 16px; }
+.agg-hint {
+  font-size: 12px;
+  color: var(--text4);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.agg-hint-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red); display: inline-block; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.agg-item {
+  display: flex;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s;
+  border-radius: 8px;
+  margin: 0 -8px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+.agg-item:last-child { border-bottom: none; }
+.agg-item:active { background: var(--bg3); }
+
+.agg-thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+.agg-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.agg-title { font-size: 14px; color: var(--text); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.agg-author { display: flex; align-items: center; gap: 5px; }
+.agg-author-avatar { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; color: white; flex-shrink: 0; }
+.agg-author-name { font-size: 12px; color: var(--text3); }
+.agg-footer { display: flex; align-items: center; gap: 8px; margin-top: auto; }
+.agg-sim {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255,36,66,0.12);
+  border: 1px solid rgba(255,36,66,0.25);
+  border-radius: 100px;
+  padding: 2px 8px;
+}
+.agg-sim-bar { width: 28px; height: 3px; border-radius: 2px; background: var(--border); overflow: hidden; }
+.agg-sim-fill { height: 100%; background: var(--red); border-radius: 2px; }
+.agg-sim-text { font-size: 11px; color: var(--red); font-weight: 600; }
+.agg-likes { font-size: 11px; color: var(--text4); display: flex; align-items: center; gap: 3px; margin-left: auto; }
+
+.load-more {
+  text-align: center;
+  padding: 16px 0 8px;
+  font-size: 13px;
+  color: var(--text3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: color 0.2s;
+}
+.load-more:active { color: var(--red); }
+.load-more svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+/* 骨架屏 */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg3) 25%, var(--bg4) 50%, var(--bg3) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 4px;
+}
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.skeleton-item { display: flex; gap: 10px; padding: 12px 0; }
+.skeleton-thumb { width: 72px; height: 72px; border-radius: 8px; flex-shrink: 0; }
+.skeleton-lines { flex: 1; display: flex; flex-direction: column; gap: 8px; padding-top: 4px; }
+.skeleton-line { height: 12px; border-radius: 3px; }
+
+/* ── 底部操作栏 ── */
+.bottom-bar {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 60px;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  z-index: 100;
+}
+.comment-input {
+  flex: 1;
+  height: 36px;
+  background: var(--bg3);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  gap: 8px;
+  cursor: text;
+}
+.comment-input-icon { font-size: 14px; opacity: 0.5; }
+.comment-input-text { font-size: 14px; color: var(--text4); }
+.action-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; }
+.action-btn svg { width: 22px; height: 22px; stroke: var(--text2); fill: none; stroke-width: 1.8; stroke-linecap: round; }
+.action-btn span { font-size: 10px; color: var(--text3); }
+.action-btn.liked svg { stroke: var(--red); fill: var(--red); }
+.action-btn.liked span { color: var(--red); }
+.action-btn.saved svg { stroke: var(--gold); fill: var(--gold); }
+.action-btn.saved span { color: var(--gold); }
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  background: rgba(0,0,0,0.85);
+  color: white;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  pointer-events: none;
+  opacity: 0;
+  transition: all 0.2s;
+  z-index: 9999;
+  backdrop-filter: blur(8px);
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+
+/* ── 聚合加载中状态 ── */
+#agg-loading { display: none; padding: 12px 16px; }
+#agg-content { display: none; }
+#comment-content { display: block; }
+
+/* ── 正文地点锚点标签 ── */
+.note-anchor {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(96,165,250,0.13);
+  border: 1px solid rgba(96,165,250,0.35);
+  border-radius: 6px;
+  padding: 2px 7px 2px 4px;
+  color: #60a5fa;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.18s;
+  vertical-align: middle;
+  margin: 1px 2px;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(96,165,250,0.10);
+}
+.note-anchor::before {
+  content: '📍';
+  font-size: 11px;
+  line-height: 1;
+}
+.note-anchor:active {
+  background: rgba(96,165,250,0.25);
+  border-color: rgba(96,165,250,0.6);
+  transform: scale(0.97);
+}
+.note-anchor-badge {
+  font-size: 9px;
+  color: rgba(96,165,250,0.7);
+  background: rgba(96,165,250,0.15);
+  border-radius: 100px;
+  padding: 1px 5px;
+  margin-left: 1px;
+  font-weight: 500;
+}
+
+/* ── 笔记搭子引导提示条 ── */
+.anchor-tip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(96,165,250,0.07);
+  border: 1px solid rgba(96,165,250,0.2);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 12px 0 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.anchor-tip:active { background: rgba(96,165,250,0.14); }
+.anchor-tip-icon { font-size: 13px; color: #60a5fa; flex-shrink: 0; }
+.anchor-tip-text { font-size: 12px; color: #60a5fa; flex: 1; line-height: 1.4; }
+.anchor-tip-arrow { font-size: 12px; color: rgba(96,165,250,0.5); flex-shrink: 0; }
+
+/* ── 地点筛选胶囊 ── */
+.place-chip {
+  padding: 4px 10px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text3);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+  background: var(--bg3);
+}
+.place-chip.active {
+  background: rgba(255,36,66,0.12);
+  border-color: rgba(255,36,66,0.4);
+  color: var(--red);
+  font-weight: 500;
+}
+
+/* ── 匹配原因标签 ── */
+.agg-match-reason {
+  font-size: 11px;
+  color: var(--text4);
+  background: var(--bg3);
+  border-radius: 4px;
+  padding: 2px 6px;
+  width: fit-content;
+  line-height: 1.5;
+}
+
+/* 场景说明 */
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-logo">🔴</div>
+  <div class="sidebar-title">小红书<br>「笔记搭子」<br>交互原型</div>
+  <div class="sidebar-sub">v1.0 · 点击卡片<br>体验完整流程</div>
+  <div class="sidebar-steps">
+    <div class="sidebar-step">
+      <div class="step-num">1</div>
+      <div class="step-text">搜索「上海攻略」，点击笔记卡片</div>
+    </div>
+    <div class="sidebar-step">
+      <div class="step-num">2</div>
+      <div class="step-text">进入锚点笔记，切换「笔记搭子」Tab</div>
+    </div>
+    <div class="sidebar-step">
+      <div class="step-num">3</div>
+      <div class="step-text">点击相关笔记，查看面包屑导航</div>
+    </div>
+  </div>
+  <div class="sidebar-version">prototype_v1.0.html</div>
+</div>
+
+<div class="phones-row">
+
+<!-- ═══════════════════════════════
+     手机 S：搜索结果页
+════════════════════════════════ -->
+<div class="phone-shell">
+  <div class="phone-label">① 搜索结果页 · 点击笔记进入详情</div>
+  <div class="phone-frame" id="phone-s">
+
+    <div class="status-bar">
+      <span class="status-time">19:53</span>
+      <div class="status-icons">
+        <svg viewBox="0 0 24 24"><rect x="2" y="8" width="3" height="13" rx="1"/><rect x="7" y="5" width="3" height="16" rx="1"/><rect x="12" y="2" width="3" height="19" rx="1"/><rect x="17" y="0" width="3" height="21" rx="1" opacity="0.3"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01" stroke="white" fill="none" stroke-width="2" stroke-linecap="round"/></svg>
+        <svg viewBox="0 0 24 24" style="width:22px"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M22 11v3" stroke-width="3" stroke-linecap="round"/></svg>
+        <span style="font-size:13px;color:white;font-weight:600;margin-left:-2px">100</span>
+      </div>
+    </div>
+
+    <!-- 搜索栏 -->
+    <div style="position:absolute;top:44px;left:0;right:0;z-index:100;background:var(--bg);padding:8px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;">
+      <div style="display:flex;align-items:center;justify-content:center;width:32px;height:32px;cursor:pointer;">
+        <svg style="width:20px;height:20px;stroke:var(--text);fill:none;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <div style="flex:1;height:34px;background:var(--bg3);border-radius:17px;display:flex;align-items:center;padding:0 12px;gap:8px;">
+        <svg style="width:14px;height:14px;stroke:var(--text3);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span style="font-size:14px;color:var(--text);flex:1;">上海攻略</span>
+        <span style="font-size:12px;color:var(--text4);">✕</span>
+      </div>
+      <div style="font-size:14px;color:var(--red);font-weight:500;cursor:pointer;white-space:nowrap;">搜索</div>
+    </div>
+
+    <!-- 筛选 Tab 栏 -->
+    <div style="position:absolute;top:94px;left:0;right:0;z-index:99;background:var(--bg);border-bottom:1px solid var(--border);">
+      <!-- 分类 tabs -->
+      <div style="display:flex;align-items:center;padding:0 12px;height:38px;gap:4px;overflow-x:auto;scrollbar-width:none;">
+        <div style="padding:4px 12px;border-radius:100px;background:var(--red);color:white;font-size:13px;font-weight:500;white-space:nowrap;flex-shrink:0;">综合</div>
+        <div style="padding:4px 12px;border-radius:100px;background:var(--bg3);color:var(--text3);font-size:13px;white-space:nowrap;flex-shrink:0;">视频</div>
+        <div style="padding:4px 12px;border-radius:100px;background:var(--bg3);color:var(--text3);font-size:13px;white-space:nowrap;flex-shrink:0;">图文</div>
+        <div style="padding:4px 12px;border-radius:100px;background:var(--bg3);color:var(--text3);font-size:13px;white-space:nowrap;flex-shrink:0;">用户</div>
+        <div style="padding:4px 12px;border-radius:100px;background:var(--bg3);color:var(--text3);font-size:13px;white-space:nowrap;flex-shrink:0;">攻略</div>
+        <div style="padding:4px 12px;border-radius:100px;background:var(--bg3);color:var(--text3);font-size:13px;white-space:nowrap;flex-shrink:0;">美食</div>
+      </div>
+      <!-- 筛选栏 -->
+      <div style="display:flex;align-items:center;padding:0 12px;height:34px;gap:16px;border-top:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text3);cursor:pointer;">
+          筛选
+          <svg style="width:12px;height:12px;stroke:var(--text3);fill:none;stroke-width:2;" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+        </div>
+        <div style="width:1px;height:14px;background:var(--border);"></div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text3);cursor:pointer;">
+          最新
+          <svg style="width:12px;height:12px;stroke:var(--text3);fill:none;stroke-width:2;" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div style="width:1px;height:14px;background:var(--border);"></div>
+        <div style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--text3);cursor:pointer;">
+          附近
+          <svg style="width:12px;height:12px;stroke:var(--text3);fill:none;stroke-width:2;" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- 搜索结果瀑布流 -->
+    <div class="scroll-area" style="top:166px;" id="scroll-s">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:3px;">
+
+        <!-- 卡片1：锚点笔记（高亮可点击） -->
+        <div onclick="openPhoneA()" style="cursor:pointer;background:var(--bg2);border-radius:10px;overflow:hidden;position:relative;border:2px solid var(--red);transition:transform 0.15s;" onmousedown="this.style.transform='scale(0.97)'" onmouseup="this.style.transform='scale(1)'" onmouseleave="this.style.transform='scale(1)'">
+          <div style="height:160px;background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;position:relative;">
+            <div style="font-size:36px;">🗺️</div>
+            <div style="font-size:10px;color:#a78bfa;">citywalk路线地图</div>
+            <div style="position:absolute;top:6px;right:6px;background:var(--red);color:white;font-size:9px;padding:2px 6px;border-radius:100px;font-weight:600;">点击进入</div>
+          </div>
+          <div style="padding:8px;">
+            <div style="font-size:12px;color:var(--text);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:500;">谁懂！被自己写的上海五一citywalk攻略满意了</div>
+            <div style="display:flex;align-items:center;gap:4px;margin-top:6px;">
+              <div style="width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#f9a8d4,#ec4899);display:flex;align-items:center;justify-content:center;font-size:8px;color:white;font-weight:700;">萌</div>
+              <span style="font-size:11px;color:var(--text3);">一只萌蛋</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+              <span style="font-size:11px;color:var(--text4);">❤️ 1637</span>
+              <span style="font-size:11px;color:var(--text4);">⭐ 2090</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 卡片2 -->
+        <div onclick="showToast('跳转笔记…')" style="cursor:pointer;background:var(--bg2);border-radius:10px;overflow:hidden;" >
+          <div style="height:200px;background:linear-gradient(135deg,#1a3a2e,#2d6a4f);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">
+            <div style="font-size:36px;">🍜</div>
+            <div style="font-size:10px;color:#6ee7b7;">上海美食地图</div>
+          </div>
+          <div style="padding:8px;">
+            <div style="font-size:12px;color:var(--text);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">上海必吃清单！本地人私藏的12家宝藏小馆不踩雷</div>
+            <div style="display:flex;align-items:center;gap:4px;margin-top:6px;">
+              <div style="width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#43e97b,#38f9d7);display:flex;align-items:center;justify-content:center;font-size:8px;color:white;">食</div>
+              <span style="font-size:11px;color:var(--text3);">食在上海不踩雷</span>
+            </div>
+            <div style="margin-top:4px;"><span style="font-size:11px;color:var(--text4);">❤️ 2.1k</span></div>
+          </div>
+        </div>
+
+        <!-- 卡片3 -->
+        <div onclick="showToast('跳转笔记…')" style="cursor:pointer;background:var(--bg2);border-radius:10px;overflow:hidden;">
+          <div style="height:140px;background:linear-gradient(135deg,#1a2a3e,#2d4a6a);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">
+            <div style="font-size:36px;">🏙️</div>
+            <div style="font-size:10px;color:#93c5fd;">外滩夜景</div>
+          </div>
+          <div style="padding:8px;">
+            <div style="font-size:12px;color:var(--text);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">外滩打卡全攻略，这几个机位拍出大片！</div>
+            <div style="display:flex;align-items:center;gap:4px;margin-top:6px;">
+              <div style="width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#f093fb,#f5576c);display:flex;align-items:center;justify-content:center;font-size:8px;color:white;">摄</div>
+              <span style="font-size:11px;color:var(--text3);">摄影小能手Lily</span>
+            </div>
+            <div style="margin-top:4px;"><span style="font-size:11px;color:var(--text4);">❤️ 3.2k</span></div>
+          </div>
+        </div>
+
+        <!-- 卡片4 -->
+        <div onclick="showToast('跳转笔记…')" style="cursor:pointer;background:var(--bg2);border-radius:10px;overflow:hidden;">
+          <div style="height:170px;background:linear-gradient(135deg,#2e1a3a,#6a2d6a);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">
+            <div style="font-size:36px;">🌸</div>
+            <div style="font-size:10px;color:#e879f9;">静安区小众</div>
+          </div>
+          <div style="padding:8px;">
+            <div style="font-size:12px;color:var(--text);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">上海小众打卡｜静安区文艺路线比外滩人少10倍</div>
+            <div style="display:flex;align-items:center;gap:4px;margin-top:6px;">
+              <div style="width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#a18cd1,#fbc2eb);display:flex;align-items:center;justify-content:center;font-size:8px;color:white;">文</div>
+              <span style="font-size:11px;color:var(--text3);">文艺漫游者</span>
+            </div>
+            <div style="margin-top:4px;"><span style="font-size:11px;color:var(--text4);">❤️ 956</span></div>
+          </div>
+        </div>
+
+        <!-- 卡片5 -->
+        <div onclick="showToast('跳转笔记…')" style="cursor:pointer;background:var(--bg2);border-radius:10px;overflow:hidden;">
+          <div style="height:180px;background:linear-gradient(135deg,#1a3a1a,#2d6a2d);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">
+            <div style="font-size:36px;">☕</div>
+            <div style="font-size:10px;color:#86efac;">徐汇咖啡地图</div>
+          </div>
+          <div style="padding:8px;">
+            <div style="font-size:12px;color:var(--text);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">徐汇滨江完整地图，沿途咖啡馆全攻略附营业时间</div>
+            <div style="display:flex;align-items:center;gap:4px;margin-top:6px;">
+              <div style="width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#f6d365,#fda085);display:flex;align-items:center;justify-content:center;font-size:8px;color:white;">咖</div>
+              <span style="font-size:11px;color:var(--text3);">咖啡地图收集者</span>
+            </div>
+            <div style="margin-top:4px;"><span style="font-size:11px;color:var(--text4);">❤️ 1.8k</span></div>
+          </div>
+        </div>
+
+        <!-- 卡片6 -->
+        <div onclick="showToast('跳转笔记…')" style="cursor:pointer;background:var(--bg2);border-radius:10px;overflow:hidden;">
+          <div style="height:150px;background:linear-gradient(135deg,#3a2a1a,#6a4f2d);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">
+            <div style="font-size:36px;">🚇</div>
+            <div style="font-size:10px;color:#fbbf24;">地铁游上海</div>
+          </div>
+          <div style="padding:8px;">
+            <div style="font-size:12px;color:var(--text);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">地铁就能玩转上海！五条线路串联最全景点</div>
+            <div style="display:flex;align-items:center;gap:4px;margin-top:6px;">
+              <div style="width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#fbbf24,#f59e0b);display:flex;align-items:center;justify-content:center;font-size:8px;color:white;">沪</div>
+              <span style="font-size:11px;color:var(--text3);">沪漂打工人日记</span>
+            </div>
+            <div style="margin-top:4px;"><span style="font-size:11px;color:var(--text4);">❤️ 743</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 底部 Tab Bar -->
+    <div class="bottom-bar" style="justify-content:space-around;padding:0 8px;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;">
+        <svg style="width:22px;height:22px;stroke:var(--text3);fill:none;stroke-width:1.8;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span style="font-size:10px;color:var(--text3);">首页</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;">
+        <svg style="width:22px;height:22px;stroke:var(--red);fill:none;stroke-width:1.8;stroke-linecap:round;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span style="font-size:10px;color:var(--red);font-weight:600;">发现</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;">
+        <div style="width:40px;height:28px;background:var(--red);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+          <svg style="width:18px;height:18px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;">
+        <svg style="width:22px;height:22px;stroke:var(--text3);fill:none;stroke-width:1.8;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span style="font-size:10px;color:var(--text3);">关注</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;">
+        <div style="width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:11px;color:white;">我</div>
+        <span style="font-size:10px;color:var(--text3);">我</span>
+      </div>
+    </div>
+
+  </div><!-- /phone-frame s -->
+</div><!-- /phone-shell s -->
+
+
+<!-- ═══════════════════════════════ 
+     手机 A：锚点笔记（搜索进入）
+════════════════════════════════ -->
+<div class="phone-shell">
+  <div class="phone-label">② 锚点笔记 · 点击搜索结果进入</div>
+  <div class="phone-frame" id="phone-a">
+
+    <!-- 状态栏 -->
+    <div class="status-bar">
+      <span class="status-time">19:54</span>
+      <div class="status-icons">
+        <svg viewBox="0 0 24 24"><rect x="2" y="8" width="3" height="13" rx="1"/><rect x="7" y="5" width="3" height="16" rx="1"/><rect x="12" y="2" width="3" height="19" rx="1"/><rect x="17" y="0" width="3" height="21" rx="1" opacity="0.3"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01" stroke="white" fill="none" stroke-width="2" stroke-linecap="round"/></svg>
+        <svg viewBox="0 0 24 24" style="width:22px"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M22 11v3" stroke-width="3" stroke-linecap="round"/></svg>
+        <span style="font-size:13px;color:white;font-weight:600;margin-left:-2px">100</span>
+      </div>
+    </div>
+
+    <!-- 导航栏 -->
+    <div class="nav-bar">
+      <div class="nav-back">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <div class="nav-author">
+        <div class="nav-avatar">萌</div>
+        <span class="nav-name">一只萌蛋</span>
+      </div>
+      <div class="nav-follow">关注</div>
+      <div class="nav-share">
+        <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      </div>
+    </div>
+
+    <!-- 可滚动内容 -->
+    <div class="scroll-area" id="scroll-a">
+
+      <!-- 笔记图片区 -->
+      <div class="note-images">
+        <div class="note-img-placeholder">
+          <div class="map-visual">
+            <div class="map-line"></div>
+            <div class="map-dots">
+              <div class="dot" style="top:15%;left:12%">1</div>
+              <div class="dot" style="top:32%;left:28%">2</div>
+              <div class="dot" style="top:45%;left:48%">3</div>
+              <div class="dot" style="top:72%;left:22%">4</div>
+              <div class="dot" style="top:62%;left:55%">5</div>
+              <div class="dot" style="top:30%;left:72%">6</div>
+            </div>
+          </div>
+          <span style="color:#888;font-size:13px;margin-top:4px">上海 citywalk 路线地图</span>
+        </div>
+        <div class="note-img-badge">1/14</div>
+      </div>
+
+      <!-- 笔记正文 -->
+      <div class="note-body">
+        <div class="note-title">谁懂！被自己写的上海五一 citywalk 攻略满意了</div>
+        <div class="note-desc" id="note-desc-a" style="line-height:2.1;">
+          五一来上海的姐妹直接抄作业！这 5 条路线按「就近不绕路」排好了，沉浸式解锁魔都的文艺与烟火～<br><br>
+          📍<strong style="color:var(--text);">路线 1：</strong><br>
+          <span class="note-anchor" onclick="switchTabWithPlace('a','徐汇滨江')">徐汇滨江绿地<span class="note-anchor-badge">看搭子</span></span>
+          <span style="color:var(--text4);font-size:12px;"> →步行5分钟→ </span>
+          <span class="note-anchor" onclick="switchTabWithPlace('a','西岸美术馆')">西岸美术馆<span class="note-anchor-badge">看搭子</span></span>
+          <span style="color:var(--text4);font-size:12px;"> →步行15分钟→ </span>
+          <span class="note-anchor" onclick="switchTabWithPlace('a','西岸梦中心')">西岸梦中心<span class="note-anchor-badge">看搭子</span></span>
+          <br><br>
+          📍<strong style="color:var(--text);">路线 2：</strong><br>
+          <span class="note-anchor" onclick="switchTabWithPlace('a','上海植物园')">上海植物园<span class="note-anchor-badge">看搭子</span></span>
+          <span style="color:var(--text4);font-size:12px;"> →打车15分钟→ </span>
+          <span class="note-anchor" onclick="switchTabWithPlace('a','茶人村')">茶人村<span class="note-anchor-badge">看搭子</span></span>
+          <span style="color:var(--text4);font-size:12px;"> →打车25分钟→ </span>
+          <span class="note-anchor" onclick="switchTabWithPlace('a','前滩太古里')">前滩太古里<span class="note-anchor-badge">看搭子</span></span>
+        </div>
+
+        <!-- 引导提示条 -->
+        <div class="anchor-tip" onclick="switchTab('a','agg')">
+          <span class="anchor-tip-icon">✦</span>
+          <span class="anchor-tip-text">点击地点标签，在「笔记搭子」查看该地点的相关笔记</span>
+          <span class="anchor-tip-arrow">→</span>
+        </div>
+
+        <div class="note-tags">
+          <span class="tag">#上海citywalk</span>
+          <span class="tag">#上海旅游</span>
+          <span class="tag">#上海旅行</span>
+          <span class="tag">#上海美食推荐</span>
+        </div>
+      </div>
+      <div class="note-meta">
+        <span class="note-date">04-30 浙江</span>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:12px;">
+          <span class="dislike-btn" style="font-size:12px;color:#555;">😐 不喜欢</span>
+        </div>
+      </div>
+
+      <!-- Tab 评论区 -->
+      <div class="comment-header">
+        <div class="tab-bar">
+          <div class="tab active" id="tab-comment-a" onclick="switchTab('a','comment')">评论 24</div>
+          <div class="tab" id="tab-agg-a" onclick="switchTab('a','agg')">
+            ✦ 笔记搭子
+          </div>
+          <div class="tab-sort" id="tab-sort-a">
+            最热 <svg style="width:12px;height:12px;stroke:#888;fill:none;stroke-width:2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- 评论内容 -->
+      <div id="comment-content-a" class="comment-section">
+        <div class="comment-item">
+          <div class="comment-avatar" style="background:linear-gradient(135deg,#667eea,#764ba2)">星</div>
+          <div class="comment-body">
+            <div class="comment-user">星爷</div>
+            <div class="comment-text">以上全不对，上海最佳游玩路线：先到国际赛车场看F1，随后去滴水湖划船，中午到崇明吃农家菜，下午游朱家角古镇，晚上去金山嘴吃海鲜，最后游览外滩观光隧道结束一天行程，晚上住宿宛平南路600号</div>
+            <div class="comment-meta">
+              <span class="comment-date">05-01 上海</span>
+              <span class="comment-reply-btn">回复</span>
+              <div class="comment-like">❤️ 37</div>
+            </div>
+            <div class="comment-reply">
+              <div class="comment-reply-text"><span class="comment-reply-user">你芝士甘薯么呢：</span>没看最后一句差点就信了</div>
+            </div>
+          </div>
+        </div>
+        <div class="comment-item">
+          <div class="comment-avatar" style="background:linear-gradient(135deg,#f093fb,#f5576c)">小</div>
+          <div class="comment-body">
+            <div class="comment-user">小红同学</div>
+            <div class="comment-text">路线1去过！徐汇滨江落日真的绝，带着耳机走走超治愈，强烈推荐傍晚去</div>
+            <div class="comment-meta">
+              <span class="comment-date">05-02 上海</span>
+              <span class="comment-reply-btn">回复</span>
+              <div class="comment-like">❤️ 24</div>
+            </div>
+          </div>
+        </div>
+        <div class="comment-item">
+          <div class="comment-avatar" style="background:linear-gradient(135deg,#4facfe,#00f2fe)">旅</div>
+          <div class="comment-body">
+            <div class="comment-user">旅行小白兔</div>
+            <div class="comment-text">这个收藏了！请问外滩太古里那里停车方便吗？外地人开车去</div>
+            <div class="comment-meta">
+              <span class="comment-date">05-03 北京</span>
+              <span class="comment-reply-btn">回复</span>
+              <div class="comment-like">❤️ 8</div>
+            </div>
+          </div>
+        </div>
+        <div class="comment-item">
+          <div class="comment-avatar" style="background:linear-gradient(135deg,#43e97b,#38f9d7)">沪</div>
+          <div class="comment-body">
+            <div class="comment-user">沪漂打工人</div>
+            <div class="comment-text">西岸梦中心那边最近开了好多新店，建议加进路线！</div>
+            <div class="comment-meta">
+              <span class="comment-date">05-03 上海</span>
+              <span class="comment-reply-btn">回复</span>
+              <div class="comment-like">❤️ 5</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 聚合加载中 -->
+      <div id="agg-loading-a" class="agg-section" style="display:none">
+        <div class="agg-hint"><span class="agg-hint-dot"></span>正在为你匹配相关笔记…</div>
+        <div class="skeleton-item">
+          <div class="skeleton skeleton-thumb"></div>
+          <div class="skeleton-lines">
+            <div class="skeleton skeleton-line" style="width:90%"></div>
+            <div class="skeleton skeleton-line" style="width:70%"></div>
+            <div class="skeleton skeleton-line" style="width:50%"></div>
+          </div>
+        </div>
+        <div class="skeleton-item">
+          <div class="skeleton skeleton-thumb"></div>
+          <div class="skeleton-lines">
+            <div class="skeleton skeleton-line" style="width:80%"></div>
+            <div class="skeleton skeleton-line" style="width:60%"></div>
+            <div class="skeleton skeleton-line" style="width:40%"></div>
+          </div>
+        </div>
+        <div class="skeleton-item">
+          <div class="skeleton skeleton-thumb"></div>
+          <div class="skeleton-lines">
+            <div class="skeleton skeleton-line" style="width:85%"></div>
+            <div class="skeleton skeleton-line" style="width:65%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 聚合内容 -->
+      <div id="agg-content-a" class="agg-section" style="display:none">
+        <div class="agg-hint"><span class="agg-hint-dot"></span>基于笔记正文地点严格匹配 · 区别于搜索结果页</div>
+
+        <!-- 地点筛选胶囊 -->
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;" id="place-filter">
+          <div class="place-chip active" onclick="filterPlace(this,'all')">全部地点</div>
+          <div class="place-chip" onclick="filterPlace(this,'xhbj')">📍 徐汇滨江</div>
+          <div class="place-chip" onclick="filterPlace(this,'xams')">🎨 西岸美术馆</div>
+          <div class="place-chip" onclick="filterPlace(this,'xazx')">🛍️ 西岸梦中心</div>
+          <div class="place-chip" onclick="filterPlace(this,'zwy')">🌿 植物园</div>
+          <div class="place-chip" onclick="filterPlace(this,'cry')">🍵 茶人村</div>
+          <div class="place-chip" onclick="filterPlace(this,'qtgl')">✨ 前滩太古里</div>
+        </div>
+
+        <!-- 卡片1：徐汇滨江 -->
+        <div class="agg-item" data-place="xhbj" onclick="openPhoneB()">
+          <div class="agg-thumb" style="background:linear-gradient(135deg,#0d2137,#1a4a6a)">🌅</div>
+          <div class="agg-content">
+            <div class="agg-title">徐汇滨江 citywalk 全程实录｜4小时慢走完整路线图</div>
+            <div class="agg-author">
+              <div class="agg-author-avatar" style="background:linear-gradient(135deg,#f093fb,#f5576c)">慢</div>
+              <span class="agg-author-name">慢走上海的人</span>
+            </div>
+            <div class="agg-match-reason">📍 来自正文地点「徐汇滨江」</div>
+            <div class="agg-footer">
+              <div class="agg-sim"><div class="agg-sim-bar"><div class="agg-sim-fill" style="width:95%"></div></div><span class="agg-sim-text">95%</span></div>
+              <div class="agg-likes">❤️ 2.8k</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 卡片2：徐汇滨江日落 -->
+        <div class="agg-item" data-place="xhbj" onclick="showToast('跳转笔记…')">
+          <div class="agg-thumb" style="background:linear-gradient(135deg,#2d1a00,#6a3a00)">🌇</div>
+          <div class="agg-content">
+            <div class="agg-title">徐汇滨江落日最佳机位+时间表，傍晚去绝对没错</div>
+            <div class="agg-author">
+              <div class="agg-author-avatar" style="background:linear-gradient(135deg,#f6d365,#fda085)">日</div>
+              <span class="agg-author-name">追光摄影师</span>
+            </div>
+            <div class="agg-match-reason">📍 来自正文地点「徐汇滨江」</div>
+            <div class="agg-footer">
+              <div class="agg-sim"><div class="agg-sim-bar"><div class="agg-sim-fill" style="width:91%"></div></div><span class="agg-sim-text">91%</span></div>
+              <div class="agg-likes">❤️ 4.1k</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 卡片3：西岸美术馆 -->
+        <div class="agg-item" data-place="xams" onclick="showToast('跳转笔记…')">
+          <div class="agg-thumb" style="background:linear-gradient(135deg,#0f2a3a,#1a5a6a)">🎨</div>
+          <div class="agg-content">
+            <div class="agg-title">西岸美术馆｜免费展预约攻略+最出片的5个角落</div>
+            <div class="agg-author">
+              <div class="agg-author-avatar" style="background:linear-gradient(135deg,#43e97b,#38f9d7)">艺</div>
+              <span class="agg-author-name">艺术打卡日记</span>
+            </div>
+            <div class="agg-match-reason">🎨 来自正文地点「西岸美术馆」</div>
+            <div class="agg-footer">
+              <div class="agg-sim"><div class="agg-sim-bar"><div class="agg-sim-fill" style="width:88%"></div></div><span class="agg-sim-text">88%</span></div>
+              <div class="agg-likes">❤️ 1.6k</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 卡片4：西岸梦中心 -->
+        <div class="agg-item" data-place="xazx" onclick="showToast('跳转笔记…')">
+          <div class="agg-thumb" style="background:linear-gradient(135deg,#1a0f2e,#3a1a6a)">🛍️</div>
+          <div class="agg-content">
+            <div class="agg-title">西岸梦中心新开的店全测评｜江景咖啡+隐藏小馆</div>
+            <div class="agg-author">
+              <div class="agg-author-avatar" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb)">探</div>
+              <span class="agg-author-name">探店小分队</span>
+            </div>
+            <div class="agg-match-reason">🛍️ 来自正文地点「西岸梦中心」</div>
+            <div class="agg-footer">
+              <div class="agg-sim"><div class="agg-sim-bar"><div class="agg-sim-fill" style="width:85%"></div></div><span class="agg-sim-text">85%</span></div>
+              <div class="agg-likes">❤️ 2.3k</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 卡片5：上海植物园 -->
+        <div class="agg-item" data-place="zwy" onclick="showToast('跳转笔记…')">
+          <div class="agg-thumb" style="background:linear-gradient(135deg,#0a2e0a,#1a6a1a)">🌿</div>
+          <div class="agg-content">
+            <div class="agg-title">上海植物园春日指南｜哪里花最多+人少拍照点推荐</div>
+            <div class="agg-author">
+              <div class="agg-author-avatar" style="background:linear-gradient(135deg,#43e97b,#38f9d7)">绿</div>
+              <span class="agg-author-name">绿植爱好者</span>
+            </div>
+            <div class="agg-match-reason">🌿 来自正文地点「上海植物园」</div>
+            <div class="agg-footer">
+              <div class="agg-sim"><div class="agg-sim-bar"><div class="agg-sim-fill" style="width:82%"></div></div><span class="agg-sim-text">82%</span></div>
+              <div class="agg-likes">❤️ 987</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 卡片6：茶人村 -->
+        <div class="agg-item" data-place="cry" onclick="showToast('跳转笔记…')">
+          <div class="agg-thumb" style="background:linear-gradient(135deg,#2a1a0a,#5a3a0a)">🍵</div>
+          <div class="agg-content">
+            <div class="agg-title">茶人村｜藏在园林里的杭帮菜，环境+菜单全记录</div>
+            <div class="agg-author">
+              <div class="agg-author-avatar" style="background:linear-gradient(135deg,#f6d365,#fda085)">茶</div>
+              <span class="agg-author-name">上海觅食记</span>
+            </div>
+            <div class="agg-match-reason">🍵 来自正文地点「茶人村」</div>
+            <div class="agg-footer">
+              <div class="agg-sim"><div class="agg-sim-bar"><div class="agg-sim-fill" style="width:87%"></div></div><span class="agg-sim-text">87%</span></div>
+              <div class="agg-likes">❤️ 1.2k</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 卡片7：前滩太古里 -->
+        <div class="agg-item" data-place="qtgl" onclick="showToast('跳转笔记…')">
+          <div class="agg-thumb" style="background:linear-gradient(135deg,#2e1a00,#6a4a00)">✨</div>
+          <div class="agg-content">
+            <div class="agg-title">前滩太古里超详攻略｜停车/打卡/吃饭全流程不踩坑</div>
+            <div class="agg-author">
+              <div class="agg-author-avatar" style="background:linear-gradient(135deg,#667eea,#764ba2)">滩</div>
+              <span class="agg-author-name">前滩本地通</span>
+            </div>
+            <div class="agg-match-reason">✨ 来自正文地点「前滩太古里」</div>
+            <div class="agg-footer">
+              <div class="agg-sim"><div class="agg-sim-bar"><div class="agg-sim-fill" style="width:83%"></div></div><span class="agg-sim-text">83%</span></div>
+              <div class="agg-likes">❤️ 1.9k</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="load-more" onclick="showToast('加载更多中…')">
+          <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          查看更多相关笔记
+        </div>
+      </div>
+
+    </div><!-- /scroll-area -->
+
+    <!-- 底部操作栏 -->
+    <div class="bottom-bar">
+      <div class="comment-input">
+        <span class="comment-input-icon">✏️</span>
+        <span class="comment-input-text">说点什么…</span>
+      </div>
+      <div class="action-btn liked" onclick="this.classList.toggle('liked');showToast(this.classList.contains('liked')?'已点赞':'取消点赞')">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span>1637</span>
+      </div>
+      <div class="action-btn saved" onclick="this.classList.toggle('saved');showToast(this.classList.contains('saved')?'已收藏':'取消收藏')">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span>2090</span>
+      </div>
+      <div class="action-btn" onclick="showToast('评论区')">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span>24</span>
+      </div>
+    </div>
+
+  </div><!-- /phone-frame a -->
+</div><!-- /phone-shell -->
+
+
+<!-- ═══════════════════════════════
+     手机 B：相关笔记（聚合进入）
+════════════════════════════════ -->
+<div class="phone-shell" id="phone-b-shell" style="opacity:0.35;transition:opacity 0.4s;pointer-events:none;">
+  <div class="phone-label">③ 相关笔记 B · 通过笔记搭子进入</div>
+  <div class="phone-frame" id="phone-b">
+
+    <!-- 状态栏 -->
+    <div class="status-bar">
+      <span class="status-time">19:55</span>
+      <div class="status-icons">
+        <svg viewBox="0 0 24 24"><rect x="2" y="8" width="3" height="13" rx="1"/><rect x="7" y="5" width="3" height="16" rx="1"/><rect x="12" y="2" width="3" height="19" rx="1"/><rect x="17" y="0" width="3" height="21" rx="1" opacity="0.3"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01" stroke="white" fill="none" stroke-width="2" stroke-linecap="round"/></svg>
+        <svg viewBox="0 0 24 24" style="width:22px"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M22 11v3" stroke-width="3" stroke-linecap="round"/></svg>
+        <span style="font-size:13px;color:white;font-weight:600;margin-left:-2px">100</span>
+      </div>
+    </div>
+
+    <!-- 导航栏 -->
+    <div class="nav-bar">
+      <div class="nav-back" onclick="closePhoneB()">
+        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <div class="nav-author">
+        <div class="nav-avatar" style="background:linear-gradient(135deg,#f093fb,#f5576c)">摄</div>
+        <span class="nav-name">摄影小能手Lily</span>
+      </div>
+      <div class="nav-follow">关注</div>
+      <div class="nav-share">
+        <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      </div>
+    </div>
+
+    <!-- 面包屑 -->
+    <div class="breadcrumb" onclick="closePhoneB()">
+      <span class="breadcrumb-icon">↩</span>
+      <span class="breadcrumb-text">返回《谁懂！被自己写的上海五一 citywalk 攻略满意了》</span>
+      <svg style="width:14px;height:14px;stroke:#FF2442;fill:none;stroke-width:2;flex-shrink:0" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+
+    <!-- 可滚动内容（with breadcrumb） -->
+    <div class="scroll-area with-breadcrumb">
+
+      <!-- 笔记图片 -->
+      <div class="note-images">
+        <div class="note-img-placeholder" style="background:linear-gradient(135deg,#0d1117 0%,#1a1030 50%,#2d1b69 100%)">
+          <div style="font-size:64px;margin-bottom:8px">🌆</div>
+          <span style="color:#a78bfa;font-size:14px;font-weight:500">外滩打卡机位图</span>
+          <span style="color:#555;font-size:12px;margin-top:4px">18张高清实拍</span>
+        </div>
+        <div class="note-img-badge">1/18</div>
+      </div>
+
+      <!-- 正文 -->
+      <div class="note-body">
+        <div class="note-title">外滩 ins 风打卡攻略，这几个机位真的出大片！</div>
+        <div class="note-desc">
+          外滩拍照不踩坑指南来了！整理了 8 个最出片的机位，分日景夜景两版，附带拍摄时间和光线建议，拍出杂志感根本不难～<br><br>
+          📸 机位1：外白渡桥桥头，早上 7 点前人少，逆光效果绝
+        </div>
+        <div class="note-tags">
+          <span class="tag">#上海citywalk</span>
+          <span class="tag">#外滩</span>
+          <span class="tag">#上海旅游</span>
+          <span class="tag">#拍照攻略</span>
+        </div>
+      </div>
+      <div class="note-meta">
+        <span class="note-date">04-28 上海</span>
+        <span class="dislike-btn" style="margin-left:auto;font-size:12px;color:#555;">😐 不喜欢</span>
+      </div>
+
+      <!-- Tab 区（仅评论，无笔记搭子） -->
+      <div class="comment-header">
+        <div class="tab-bar">
+          <div class="tab active">评论 156</div>
+          <div class="tab-sort">
+            最热 <svg style="width:12px;height:12px;stroke:#888;fill:none;stroke-width:2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <!-- 无笔记搭子 Tab 的说明 -->
+        <div style="background:rgba(255,36,66,0.06);border-left:2px solid var(--red);padding:8px 12px;margin:8px 0;border-radius:0 6px 6px 0;">
+          <div style="font-size:11px;color:#FF2442;font-weight:500">📌 设计说明</div>
+          <div style="font-size:11px;color:#888;margin-top:2px;line-height:1.5">B 笔记不展示「笔记搭子」Tab（规则 R-03），避免无限层级叠套</div>
+        </div>
+      </div>
+
+      <!-- 评论 -->
+      <div class="comment-section">
+        <div class="comment-item">
+          <div class="comment-avatar" style="background:linear-gradient(135deg,#667eea,#764ba2)">小</div>
+          <div class="comment-body">
+            <div class="comment-user">小红爱摄影</div>
+            <div class="comment-text">外白渡桥那个机位真的！昨天特地去拍了，清晨的光线太绝了，感谢博主！</div>
+            <div class="comment-meta">
+              <span class="comment-date">04-29 上海</span>
+              <span class="comment-reply-btn">回复</span>
+              <div class="comment-like">❤️ 128</div>
+            </div>
+          </div>
+        </div>
+        <div class="comment-item">
+          <div class="comment-avatar" style="background:linear-gradient(135deg,#43e97b,#38f9d7)">游</div>
+          <div class="comment-body">
+            <div class="comment-user">游侠阿强</div>
+            <div class="comment-text">夜景用什么设置？手机拍总是糊</div>
+            <div class="comment-meta">
+              <span class="comment-date">04-30 广东</span>
+              <span class="comment-reply-btn">回复</span>
+              <div class="comment-like">❤️ 44</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /scroll-area b -->
+
+    <!-- 底部操作栏 -->
+    <div class="bottom-bar">
+      <div class="comment-input">
+        <span class="comment-input-icon">✏️</span>
+        <span class="comment-input-text">说点什么…</span>
+      </div>
+      <div class="action-btn" onclick="this.classList.toggle('liked');showToast(this.classList.contains('liked')?'已点赞':'取消点赞')">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <span>3218</span>
+      </div>
+      <div class="action-btn" onclick="this.classList.toggle('saved');showToast(this.classList.contains('saved')?'已收藏':'取消收藏')">
+        <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span>4102</span>
+      </div>
+      <div class="action-btn" onclick="showToast('评论区')">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span>156</span>
+      </div>
+    </div>
+
+  </div><!-- /phone-frame b -->
+</div><!-- /phone-shell b -->
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+</div><!-- /phones-row -->
+
+<script>
+// 地点筛选
+function filterPlace(el, place) {
+  document.querySelectorAll('.place-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('#agg-content-a .agg-item').forEach(item => {
+    if (place === 'all' || item.dataset.place === place) {
+      item.style.display = 'flex';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
+
+// 从搜索结果页进入锚点笔记 A
+function openPhoneA() {
+  const shell = document.getElementById('phone-a');
+  shell.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  showToast('从搜索进入笔记，笔记搭子已激活');
+}
+
+// Tab 切换
+function switchTab(phone, tab) {
+  const commentTab = document.getElementById(`tab-comment-${phone}`);
+  const aggTab = document.getElementById(`tab-agg-${phone}`);
+  const commentContent = document.getElementById(`comment-content-${phone}`);
+  const aggLoading = document.getElementById(`agg-loading-${phone}`);
+  const aggContent = document.getElementById(`agg-content-${phone}`);
+  const tabSort = document.getElementById(`tab-sort-${phone}`);
+
+  if (tab === 'comment') {
+    commentTab.classList.add('active');
+    aggTab.classList.remove('active');
+    commentContent.style.display = 'block';
+    aggLoading.style.display = 'none';
+    aggContent.style.display = 'none';
+    if (tabSort) tabSort.style.display = 'flex';
+  } else {
+    commentTab.classList.remove('active');
+    aggTab.classList.add('active');
+    commentContent.style.display = 'none';
+    aggContent.style.display = 'none';
+    if (tabSort) tabSort.style.display = 'none';
+
+    // 骨架屏模拟加载
+    aggLoading.style.display = 'block';
+    // 滚动到 tab 位置
+    document.getElementById(`scroll-${phone}`).scrollTo({ top: document.querySelector(`#scroll-${phone} .note-images`).offsetHeight + document.querySelector(`#scroll-${phone} .note-body`).offsetHeight, behavior: 'smooth' });
+
+    setTimeout(() => {
+      aggLoading.style.display = 'none';
+      aggContent.style.display = 'block';
+    }, 1200);
+  }
+}
+
+// 打开 B 笔记
+function openPhoneB() {
+  const shell = document.getElementById('phone-b-shell');
+  shell.style.opacity = '1';
+  shell.style.pointerEvents = 'auto';
+  shell.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  showToast('进入相关笔记，锚点已继承');
+}
+
+// 关闭 B 笔记（返回 A）
+function closePhoneB() {
+  const shell = document.getElementById('phone-b-shell');
+  shell.style.opacity = '0.35';
+  shell.style.pointerEvents = 'none';
+  document.getElementById('phone-a').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  showToast('已返回锚点笔记');
+}
+
+// Toast
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+</script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>小红书「笔记搭子」原型 v1.0</title>
+<title>小红书「笔记搭子」原型 v6.0</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
 
@@ -104,6 +104,12 @@ body {
   font-size: 10px;
   color: #333355;
   font-family: monospace;
+}
+.sidebar-contact {
+  margin-top: 10px;
+  font-size: 11px;
+  color: #666688;
+  line-height: 1.6;
 }
 
 /* ── 右侧手机横排容器 ── */
@@ -575,6 +581,82 @@ body {
   line-height: 1.5;
 }
 
+/* ── Tab 上的发现型提示点（首次可见） ── */
+.tab-notify-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  display: inline-block;
+  margin-left: 3px;
+  animation: pulse 2s infinite;
+  vertical-align: middle;
+}
+
+/* ── 空状态 ── */
+.empty-state {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  gap: 10px;
+}
+.empty-state-icon { font-size: 32px; opacity: 0.5; }
+.empty-state-text { font-size: 13px; color: var(--text3); line-height: 1.6; }
+.empty-state-btn {
+  margin-top: 8px;
+  padding: 7px 18px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  color: var(--text2);
+  font-size: 12px;
+  cursor: pointer;
+}
+.empty-state-btn:active { background: var(--bg3); }
+
+/* ── 错误 / 超时状态 ── */
+.error-state {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  gap: 10px;
+}
+.error-state-icon { font-size: 28px; opacity: 0.6; }
+.error-state-text { font-size: 13px; color: var(--text3); line-height: 1.6; }
+.error-state-btn {
+  margin-top: 8px;
+  padding: 7px 18px;
+  border-radius: 100px;
+  background: var(--red);
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.error-state-btn:active { opacity: 0.8; }
+
+/* ── 相似度说明浮层 ── */
+.sim-info-icon {
+  font-size: 10px;
+  color: var(--text4);
+  margin-left: 2px;
+  cursor: pointer;
+}
+
+/* ── 关注 / 不喜欢 交互状态 ── */
+.nav-follow.following {
+  border-color: var(--border);
+  color: var(--text3);
+  background: transparent;
+}
+.dislike-btn { transition: color 0.15s; }
+.dislike-btn.active { color: var(--text2); }
+
 /* 场景说明 */
 </style>
 </head>
@@ -583,7 +665,7 @@ body {
 <div class="sidebar">
   <div class="sidebar-logo">🔴</div>
   <div class="sidebar-title">小红书<br>「笔记搭子」<br>交互原型</div>
-  <div class="sidebar-sub">v1.0 · 点击卡片<br>体验完整流程</div>
+  <div class="sidebar-sub">v6.0 · 点击卡片<br>体验完整流程</div>
   <div class="sidebar-steps">
     <div class="sidebar-step">
       <div class="step-num">1</div>
@@ -591,19 +673,19 @@ body {
     </div>
     <div class="sidebar-step">
       <div class="step-num">2</div>
-      <div class="step-text">进入锚点笔记，切换「笔记搭子」Tab</div>
+      <div class="step-text">进入锚点笔记，点正文里的蓝色地点（如「徐汇滨江绿地」），自动跳到对应笔记搭子筛选结果</div>
     </div>
     <div class="sidebar-step">
       <div class="step-num">3</div>
-      <div class="step-text">点击相关笔记，查看面包屑导航</div>
+      <div class="step-text">试试「静安寺（演示空态）」胶囊，看空状态；或切「评论」再切回「笔记搭子」，感受不再重复加载</div>
+    </div>
+    <div class="sidebar-step">
+      <div class="step-num">4</div>
+      <div class="step-text">点击相关笔记，查看面包屑导航返回</div>
     </div>
   </div>
-    <div style="margin-top: auto; border-top: 1px solid #1e1e35; padding-top: 12px; width: 100%;">
-    <div style="font-size: 13px; color: #666688; line-height: 1.6;">
-      <div>@朱梦丹</div>
-      <div>13758067351</div>
-    </div>
-  </div>
+  <div class="sidebar-version">demo-claude-v6.0.html</div>
+  <div class="sidebar-contact">@朱梦丹<br>13758067351</div>
 </div>
 
 <div class="phones-row">
@@ -831,7 +913,7 @@ body {
         <div class="nav-avatar">萌</div>
         <span class="nav-name">一只萌蛋</span>
       </div>
-      <div class="nav-follow">关注</div>
+      <div class="nav-follow" onclick="toggleFollow(this)">关注</div>
       <div class="nav-share">
         <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
       </div>
@@ -896,7 +978,7 @@ body {
       <div class="note-meta">
         <span class="note-date">04-30 浙江</span>
         <div style="margin-left:auto;display:flex;align-items:center;gap:12px;">
-          <span class="dislike-btn" style="font-size:12px;color:#555;">😐 不喜欢</span>
+          <span class="dislike-btn" onclick="toggleDislike(this)">😐 不喜欢</span>
         </div>
       </div>
 
@@ -905,7 +987,7 @@ body {
         <div class="tab-bar">
           <div class="tab active" id="tab-comment-a" onclick="switchTab('a','comment')">评论 24</div>
           <div class="tab" id="tab-agg-a" onclick="switchTab('a','agg')">
-            ✦ 笔记搭子
+            ✦ 笔记搭子<span class="tab-notify-dot" id="tab-agg-dot-a"></span>
           </div>
           <div class="tab-sort" id="tab-sort-a">
             最热 <svg style="width:12px;height:12px;stroke:#888;fill:none;stroke-width:2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
@@ -998,7 +1080,7 @@ body {
 
       <!-- 聚合内容 -->
       <div id="agg-content-a" class="agg-section" style="display:none">
-        <div class="agg-hint"><span class="agg-hint-dot"></span>基于笔记正文地点严格匹配 · 区别于搜索结果页</div>
+        <div class="agg-hint"><span class="agg-hint-dot"></span>基于笔记正文地点严格匹配 · 区别于搜索结果页 <span class="sim-info-icon" onclick="showToast('相似度基于标签与地点匹配计算，仅供参考，非精确度量')">ⓘ 相似度说明</span></div>
 
         <!-- 地点筛选胶囊 -->
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;" id="place-filter">
@@ -1009,6 +1091,21 @@ body {
           <div class="place-chip" onclick="filterPlace(this,'zwy')">🌿 植物园</div>
           <div class="place-chip" onclick="filterPlace(this,'cry')">🍵 茶人村</div>
           <div class="place-chip" onclick="filterPlace(this,'qtgl')">✨ 前滩太古里</div>
+          <div class="place-chip" onclick="filterPlace(this,'empty-demo')">🏛️ 静安寺（演示空态）</div>
+        </div>
+
+        <!-- 空状态：当筛选地点无结果时展示 -->
+        <div class="empty-state" id="agg-empty-a">
+          <div class="empty-state-icon">🔍</div>
+          <div class="empty-state-text">这个地点暂时还没有足够的相关笔记<br>试试直接搜索该地点关键词</div>
+          <div class="empty-state-btn" onclick="showToast('跳转搜索「静安寺」…')">搜索该地点</div>
+        </div>
+
+        <!-- 错误 / 超时状态（演示用，实际由接口超时触发） -->
+        <div class="error-state" id="agg-error-a">
+          <div class="error-state-icon">⚠️</div>
+          <div class="error-state-text">加载超时了，检查一下网络<br>再试一次吧</div>
+          <div class="error-state-btn" onclick="retryAgg('a')">重新加载</div>
         </div>
 
         <!-- 卡片1：徐汇滨江 -->
@@ -1189,7 +1286,7 @@ body {
         <div class="nav-avatar" style="background:linear-gradient(135deg,#f093fb,#f5576c)">摄</div>
         <span class="nav-name">摄影小能手Lily</span>
       </div>
-      <div class="nav-follow">关注</div>
+      <div class="nav-follow" onclick="toggleFollow(this)">关注</div>
       <div class="nav-share">
         <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
       </div>
@@ -1231,7 +1328,7 @@ body {
       </div>
       <div class="note-meta">
         <span class="note-date">04-28 上海</span>
-        <span class="dislike-btn" style="margin-left:auto;font-size:12px;color:#555;">😐 不喜欢</span>
+        <span class="dislike-btn" style="margin-left:auto;" onclick="toggleDislike(this)">😐 不喜欢</span>
       </div>
 
       <!-- Tab 区（仅评论，无笔记搭子） -->
@@ -1308,17 +1405,32 @@ body {
 </div><!-- /phones-row -->
 
 <script>
-// 地点筛选
+// 记录每个手机的聚合 Tab 是否已经加载过一次（避免重复访问时再次闪骨架屏）
+const aggLoadedOnce = {};
+// 记录每个手机的笔记搭子 Tab 是否已被点击过（用于收起首次发现提示点）
+const aggTabSeen = {};
+
+// 地点筛选（含空状态判断）
 function filterPlace(el, place) {
-  document.querySelectorAll('.place-chip').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('#place-filter .place-chip').forEach(c => c.classList.remove('active'));
   el.classList.add('active');
-  document.querySelectorAll('#agg-content-a .agg-item').forEach(item => {
-    if (place === 'all' || item.dataset.place === place) {
-      item.style.display = 'flex';
-    } else {
-      item.style.display = 'none';
-    }
+
+  const emptyState = document.getElementById('agg-empty-a');
+  const items = document.querySelectorAll('#agg-content-a .agg-item');
+  let visibleCount = 0;
+
+  items.forEach(item => {
+    const show = place === 'all' || item.dataset.place === place;
+    item.style.display = show ? 'flex' : 'none';
+    if (show) visibleCount++;
   });
+
+  // 演示地点「empty-demo」故意没有匹配卡片，用于展示空状态
+  if (visibleCount === 0) {
+    emptyState.style.display = 'flex';
+  } else {
+    emptyState.style.display = 'none';
+  }
 }
 
 // 从搜索结果页进入锚点笔记 A
@@ -1328,7 +1440,37 @@ function openPhoneA() {
   showToast('从搜索进入笔记，笔记搭子已激活');
 }
 
-// Tab 切换
+// 点击正文地点锚点：跳转到笔记搭子 Tab 并直接按该地点筛选
+function switchTabWithPlace(phone, placeName) {
+  switchTab(phone, 'agg');
+  showToast(`已定位到「${placeName}」相关笔记`);
+
+  // 地点中文名 → 筛选胶囊 data-place 的映射
+  const placeMap = {
+    '徐汇滨江': 'xhbj', '徐汇滨江绿地': 'xhbj',
+    '西岸美术馆': 'xams',
+    '西岸梦中心': 'xazx',
+    '上海植物园': 'zwy',
+    '茶人村': 'cry',
+    '前滩太古里': 'qtgl'
+  };
+  const key = placeMap[placeName];
+  if (!key) return;
+
+  // 等聚合内容渲染完成后再应用筛选（首次访问有骨架屏延迟）
+  const applyFilter = () => {
+    const chip = Array.from(document.querySelectorAll(`#place-filter-${phone} .place-chip, #place-filter .place-chip`))
+      .find(c => c.getAttribute('onclick') && c.getAttribute('onclick').includes(`'${key}'`));
+    if (chip) filterPlace(chip, key);
+  };
+  if (aggLoadedOnce[phone]) {
+    applyFilter();
+  } else {
+    setTimeout(applyFilter, 1250);
+  }
+}
+
+// Tab 切换（聚合内容仅首次访问展示骨架屏，之后直接展示缓存内容）
 function switchTab(phone, tab) {
   const commentTab = document.getElementById(`tab-comment-${phone}`);
   const aggTab = document.getElementById(`tab-agg-${phone}`);
@@ -1336,6 +1478,7 @@ function switchTab(phone, tab) {
   const aggLoading = document.getElementById(`agg-loading-${phone}`);
   const aggContent = document.getElementById(`agg-content-${phone}`);
   const tabSort = document.getElementById(`tab-sort-${phone}`);
+  const notifyDot = document.getElementById(`tab-agg-dot-${phone}`);
 
   if (tab === 'comment') {
     commentTab.classList.add('active');
@@ -1348,19 +1491,51 @@ function switchTab(phone, tab) {
     commentTab.classList.remove('active');
     aggTab.classList.add('active');
     commentContent.style.display = 'none';
-    aggContent.style.display = 'none';
     if (tabSort) tabSort.style.display = 'none';
+    if (notifyDot) notifyDot.style.display = 'none';
+    aggTabSeen[phone] = true;
 
-    // 骨架屏模拟加载
-    aggLoading.style.display = 'block';
-    // 滚动到 tab 位置
     document.getElementById(`scroll-${phone}`).scrollTo({ top: document.querySelector(`#scroll-${phone} .note-images`).offsetHeight + document.querySelector(`#scroll-${phone} .note-body`).offsetHeight, behavior: 'smooth' });
 
-    setTimeout(() => {
+    if (aggLoadedOnce[phone]) {
+      // 已加载过，直接展示，不再重复骨架屏
       aggLoading.style.display = 'none';
       aggContent.style.display = 'block';
-    }, 1200);
+    } else {
+      aggLoading.style.display = 'block';
+      aggContent.style.display = 'none';
+      setTimeout(() => {
+        aggLoading.style.display = 'none';
+        aggContent.style.display = 'block';
+        aggLoadedOnce[phone] = true;
+      }, 1200);
+    }
   }
+}
+
+// 演示用：模拟超时后重试
+function retryAgg(phone) {
+  document.getElementById(`agg-error-${phone}`).style.display = 'none';
+  document.getElementById(`agg-loading-${phone}`).style.display = 'block';
+  setTimeout(() => {
+    document.getElementById(`agg-loading-${phone}`).style.display = 'none';
+    document.getElementById(`agg-content-${phone}`).style.display = 'block';
+    aggLoadedOnce[phone] = true;
+    showToast('已重新加载');
+  }, 900);
+}
+
+// 关注 / 取消关注
+function toggleFollow(el) {
+  const following = el.classList.toggle('following');
+  el.textContent = following ? '已关注' : '关注';
+  showToast(following ? '已关注作者' : '已取消关注');
+}
+
+// 不喜欢
+function toggleDislike(el) {
+  el.classList.toggle('active');
+  showToast(el.classList.contains('active') ? '已减少此类内容推荐' : '已取消');
 }
 
 // 打开 B 笔记
